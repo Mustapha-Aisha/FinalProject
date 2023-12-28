@@ -1,6 +1,5 @@
 package com.FinalProject.NextGenFinalProject.Dto;
 
-import com.FinalProject.NextGenFinalProject.Entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponseFromDb {
+public class User {
     private Long id;
 
     private String userName;
@@ -27,7 +26,7 @@ public class UserResponseFromDb {
 
     private String dateOfBirth;
 
-    public UserResponseFromDb(User user){
+    public User(com.FinalProject.NextGenFinalProject.Entity.User user){
         id = user.getId();
         userName = user.getUserName();
         email = user.getEmail();

@@ -28,8 +28,6 @@ public class AuthenticationService {
     private final MyUserDetailsService myUserDetailsService;
 
     private final JwtService jwtService;
-    private final ProductRepository prodRepo;
-    private final AuthenticationService authenticationService;
     private final RoleRepository roleRepo;
 
 

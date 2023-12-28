@@ -2,6 +2,7 @@ package com.FinalProject.NextGenFinalProject.Controller;
 
 import com.FinalProject.NextGenFinalProject.Dto.*;
 import com.FinalProject.NextGenFinalProject.Entity.Product;
+import com.FinalProject.NextGenFinalProject.Entity.Review;
 import com.FinalProject.NextGenFinalProject.Entity.User;
 import com.FinalProject.NextGenFinalProject.Service.CartService;
 import com.FinalProject.NextGenFinalProject.Service.UserService;
@@ -59,8 +60,14 @@ public class UserController {
 
     }
 
+    @PostMapping("/postReview")
+    public AppResponse<Review>  submitReview(@Valid @RequestBody ReviewRequest reviewRequest){
+        return userService.submitReview(reviewRequest);
+
+    }
+
     @GetMapping("/{id}")
-    public AppResponse<ProductResponseFromDb> getProdById(@PathVariable Long id){
+    public AppResponse<Product> getProdById(@PathVariable Long id){
         return userService.getProductById(id);
     }
 

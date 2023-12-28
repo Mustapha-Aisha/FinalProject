@@ -1,7 +1,7 @@
 package com.FinalProject.NextGenFinalProject.Entity;
 
-import com.FinalProject.NextGenFinalProject.Dto.ProductResponseFromDb;
-import com.FinalProject.NextGenFinalProject.Dto.UserResponseFromDb;
+;
+import com.FinalProject.NextGenFinalProject.Dto.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,10 +22,12 @@ public class Review {
     private long id;
 
     @ManyToOne
-    private UserResponseFromDb user;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
-    private ProductResponseFromDb product;
+    @JoinColumn(name = "product_id")
+    private Product product;
     private int rating;
     private String comment;
     private LocalDate dateSubmitted;
