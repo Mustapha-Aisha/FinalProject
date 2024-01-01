@@ -16,11 +16,11 @@ public class CartResponseFromDb {
     private List<CartItemFromDb> cartItems;
     private double totalPrice;
 
-    public CartResponseFromDb(Cart cart) {
-        id = cart.getId();
-        cartItems = cart.getCartItems().stream()
-                .map(CartItemFromDb::new)
-                .collect(Collectors.toList());
-        totalPrice = cart.getTotalPrice();
-    }
+//    public CartResponseFromDb(Cart cart) {
+//        id = cart.getId();
+//        cartItems = cart.getCartItems().stream()
+//                .map(CartItemFromDb::new)
+//                .collect(Collectors.toList());
+//        totalPrice = cart.getTotalPrice();
+//    }
 }

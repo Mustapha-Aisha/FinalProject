@@ -8,22 +8,23 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
 @Entity
 public class CartItem {
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)
    private Long id;
 
-   @ManyToOne
-   @JoinColumn(name = "cart_id")
+   @ManyToOne(cascade = CascadeType.PERSIST)
+   @JoinColumn(name = "cart_id", referencedColumnName = "id")
    private Cart cart;
 
-   @ManyToOne
+   @ManyToOne(cascade = CascadeType.PERSIST)
    @JoinColumn(name = "product_id")
    private Product product;
 
    private int quantity;
+
+
 
 //   public CartItem(Cart cart, Product product, int quantity) {
 //   }

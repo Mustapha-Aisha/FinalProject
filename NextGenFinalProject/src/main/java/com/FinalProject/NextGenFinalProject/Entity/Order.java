@@ -1,9 +1,7 @@
 package com.FinalProject.NextGenFinalProject.Entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.FinalProject.NextGenFinalProject.Dto.CartRequest;
+import lombok.*;
 import org.hibernate.Transaction;
 
 import javax.persistence.*;
@@ -14,23 +12,35 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "order")
+@Table(name = "orders")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @ManyToOne
+    private Long id;
+
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+    private String address;
+    private String postalCode;
+    private double orderAmount;
+    private String orderStatus;
+
+    @OneToOne
+    private Product product;
+
+    @OneToOne
     private User user;
-    @OneToMany
-    private List<Product> products;
-    private double totalPrice;
 
-    private String shippingAddress;
-
-    private String orderDate;
-
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
-    private String paymentInformation;
-    private Transaction transaction;
+    public Order(String firstName, String lastName, String phoneNumber, String address, String postalCode, double orderAmount, String orderStatus, Product product, User user) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+        this.postalCode = postalCode;
+        this.orderAmount = orderAmount;
+        this.orderStatus = orderStatus;
+        this.product = product;
+        this.user = user;
+    }
 }

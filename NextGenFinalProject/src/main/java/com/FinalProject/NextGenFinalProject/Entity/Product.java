@@ -50,7 +50,8 @@ public class Product {
     @OneToMany(mappedBy = "product")
     private List<Review> reviews;
 
-
+//    @OneToOne(cascade = CascadeType.PERSIST)
+//    private Cart cart;
 
 
 }

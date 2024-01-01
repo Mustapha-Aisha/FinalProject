@@ -1,7 +1,6 @@
 package com.FinalProject.NextGenFinalProject.Entity;
 
 ;
-import com.FinalProject.NextGenFinalProject.Dto.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +21,7 @@ public class Review {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id" , referencedColumnName = "id")
     private User user;
 
     @ManyToOne

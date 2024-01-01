@@ -1,9 +1,11 @@
 package com.FinalProject.NextGenFinalProject.Service;
 
 import com.FinalProject.NextGenFinalProject.Dto.*;
+import com.FinalProject.NextGenFinalProject.Entity.Cart;
 import com.FinalProject.NextGenFinalProject.Entity.Role;
 import com.FinalProject.NextGenFinalProject.Entity.User;
 import com.FinalProject.NextGenFinalProject.Exception.ApiException;
+import com.FinalProject.NextGenFinalProject.Repository.CartRepository;
 import com.FinalProject.NextGenFinalProject.Repository.ProductRepository;
 import com.FinalProject.NextGenFinalProject.Repository.RoleRepository;
 import com.FinalProject.NextGenFinalProject.Repository.UserRepo;
@@ -29,6 +31,7 @@ public class AuthenticationService {
 
     private final JwtService jwtService;
     private final RoleRepository roleRepo;
+    private final CartRepository cartRepository;
 
 
 
@@ -36,7 +39,6 @@ public class AuthenticationService {
         boolean check = userRepo.existsByEmail(userRequest.getEmail());
         if (check) throw new ApiException("User already exists");
         User user = new User();
-        user.setAddress(userRequest.getAddress());
         user.setEmail(userRequest.getEmail());
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setFirstName(userRequest.getFirstName());
@@ -63,15 +65,19 @@ public class AuthenticationService {
         boolean check = userRepo.existsByEmail(userRequest.getEmail());
         if (check) throw new ApiException("User already exists");
         User user = new User();
-        user.setUserName(userRequest.getUserName());
-        user.setAddress(userRequest.getAddress());
         user.setEmail(userRequest.getEmail());
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setFirstName(userRequest.getFirstName());
-        user.setDateOfBirth(userRequest.getDateOfBirth());
         user.setLastName(userRequest.getLastName());
         user.setPhoneNumber(userRequest.getPhoneNumber());
         user.setRole(create_User_Role());
+        Cart cart = new Cart();
+        // Set any necessary properties for the cart
+        cartRepository.save(cart);
+
+        user.setCart(cart);
+
+        userRepo.save(user);
 
 
         userRepo.save(user);
@@ -79,11 +85,11 @@ public class AuthenticationService {
     }
 
     public Role create_User_Role(){
-        Role role = roleRepo.findByName("User");
+        Role role = roleRepo.findByName("USER");
 
         if (role == null) {
             Role role1  = new Role();
-            role1.setName("User");
+            role1.setName("USER");
             return role1;
         }
         return role;
@@ -95,21 +101,14 @@ public class AuthenticationService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             return new AppResponse<>(204, "Wrong email/password");
         }
-
-        Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
-        boolean isAdmin = authorities.stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
-
-        if (isAdmin) {
-            var jwtToken = jwtService.generateToken(user);
-            return new AppResponse<>(0, "Successfully logged in", jwtToken);
-        } else {
-            return new AppResponse<>(0, "Successfully logged in without a token");
-        }
+        var jwtToken = jwtService.generateToken(user);
+        return new AppResponse<>(0, "Successfully logged in", jwtToken);
     }
-}
+    }
 
 
 
 
 
+
+//redo the login for everyone to get a token regardless of role

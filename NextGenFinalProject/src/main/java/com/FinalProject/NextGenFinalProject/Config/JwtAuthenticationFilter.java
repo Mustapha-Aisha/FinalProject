@@ -25,6 +25,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final MyUserDetailsService userDetailsService;
 
     private final JwtService jwtService;
+    public static  String CURRENT_USER = "";
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -33,23 +35,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String userEmail;
         String jwt;
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")){
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         jwt = authorizationHeader.substring(7);
         userEmail = jwtService.extractUsername(jwt);
+        CURRENT_USER = userEmail;
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            if (jwtService.validateToken(jwt, userDetails)){
+            if (jwtService.validateToken(jwt, userDetails)) {
+                // Set the user email in the request attributes
+
+
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
         }
 
+        filterChain.doFilter(request, response);
     }
 }
+
+
+

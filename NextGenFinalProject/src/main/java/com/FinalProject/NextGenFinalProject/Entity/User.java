@@ -12,14 +12,11 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "customer")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "userName", nullable = false)
-    private String userName;
 
     @Column(name = "email", nullable = false)
     private String email;
@@ -33,22 +30,19 @@ public class User {
     @Column(name = "lastName", nullable = false)
     private String lastName;
 
-    @Column(name = "address", nullable = false)
-    private String address;
-
     @Column(name = "phoneNumber", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "dateOfBirth", nullable = false)
-    private String dateOfBirth;
-
     @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "role", referencedColumnName = "name")
     private Role role;
 
-    @OneToOne(cascade = CascadeType.PERSIST) // One Customer can have one Cart
-    @JoinColumn(name = "cart_id", referencedColumnName = "id") // Foreign key column in Cart
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
 
+    @ManyToOne
+    @JoinColumn(name = "review", referencedColumnName = "id")
+    private Review review;
 
 
 }

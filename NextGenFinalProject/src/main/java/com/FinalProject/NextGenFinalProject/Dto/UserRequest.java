@@ -12,8 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequest {
-    @NotEmpty(message = "userName cant be blank")
-    private String userName;
+//    @NotEmpty(message = "userName cant be blank")
+//    private String userName;
 
     @NotEmpty(message = "email cant be blank")
     private String email;
@@ -25,11 +25,11 @@ public class UserRequest {
     private String firstName;
     @NotEmpty(message = "lastName cant be blank")
     private String lastName;
-    @NotEmpty(message = "address cant be blank")
-    private String address;
+//    @NotEmpty(message = "address cant be blank")
+//    private String address;
     @NotEmpty(message = "phoneNumber cant be blank")
     private String PhoneNumber;
-    @NotEmpty(message = "dateOfBirth cant be blank")
-    private String dateOfBirth;
+//    @NotEmpty(message = "dateOfBirth cant be blank")
+//    private String dateOfBirth;
 
 }
