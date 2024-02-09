@@ -1,0 +1,13 @@
+package com.FinalProject.NextGenFinalProject;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class NextGenFinalProjectApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
