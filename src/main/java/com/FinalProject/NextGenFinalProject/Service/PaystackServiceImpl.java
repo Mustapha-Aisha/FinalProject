@@ -44,12 +44,14 @@ public class PaystackServiceImpl implements PaystackService {
             Gson gson = new Gson();
             StringEntity postingString = new StringEntity(gson.toJson(createPlanDto));
             HttpClient client = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost();
+            HttpPost post = new HttpPost(APIConstants.PAYSTACK_INIT);
             post.setEntity(postingString);
             post.addHeader("Content-type", "application/json");
             post.addHeader("Authorization", "Bearer " + secretKey);
             StringBuilder result = new StringBuilder();
             HttpResponse response = client.execute(post);
+
+
 
             if (response.getStatusLine().getStatusCode() == APIConstants.STATUS_CODE_CREATED) {
 
@@ -66,7 +68,7 @@ public class PaystackServiceImpl implements PaystackService {
 
             ObjectMapper mapper = new ObjectMapper();
             createPlanResponse = mapper.readValue(result.toString(), CreatePlanResponse.class);
-            log.info("Paystack Secret Key: {}", secretKey);
+//            log.info("Paystack Secret Key: {}", secretKey);
 
         } catch(Throwable ex) {
             ex.printStackTrace();
