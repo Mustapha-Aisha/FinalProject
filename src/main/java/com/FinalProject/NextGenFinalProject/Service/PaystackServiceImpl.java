@@ -8,6 +8,7 @@ import com.FinalProject.NextGenFinalProject.Repository.UserRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -17,30 +18,45 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.jboss.jandex.Main;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import javax.transaction.Transactional;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.xml.bind.DatatypeConverter;
+import java.io.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 
 @Service
-@Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PaystackServiceImpl implements PaystackService {
 
     private final PaystackPaymentRepository paystackPaymentRepository;
     private final UserRepo appUserRepository;
-
-    //    @Value("${secret.key}")
-    private static final String secretKey = "sk_live_adb0217c8d619d8169757bd5e546e5eee2075601";
-
+    public static String getSecretKey() {
+        Properties properties = new Properties();
+        try (InputStream input = new FileInputStream("src/main/resources/config.properties")) {
+            properties.load(input);
+            return properties.getProperty("secretKey");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
     @Override
     public CreatePlanResponse createPlan(CreatePlanDto createPlanDto) throws Exception {
         CreatePlanResponse createPlanResponse = null;
 
         try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
             Gson gson = new Gson();
+            String secretKey = getSecretKey();
+            if (secretKey == null || secretKey.isEmpty()) {
+
+                throw new IllegalArgumentException("Secret key is null or empty.");
+            } System.out.println(secretKey);
             StringEntity postingString = new StringEntity(gson.toJson(createPlanDto));
             HttpPost post = new HttpPost(APIConstants.PAYSTACK_INIT);
             post.setEntity(postingString);
@@ -57,6 +73,8 @@ public class PaystackServiceImpl implements PaystackService {
                     }
                 }
             } else {
+                System.out.println("Error response body: " + EntityUtils.toString(response.getEntity()));
+
                 throw new Exception("Paystack is unable to process payment at the moment " +
                         "or something wrong with the request");
             }
@@ -75,12 +93,13 @@ public class PaystackServiceImpl implements PaystackService {
 
         try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
             Gson gson = new Gson();
+            String secretKey = getSecretKey();
             StringEntity postingString = new StringEntity(gson.toJson(initializePaymentDto));
             HttpPost post = new HttpPost(APIConstants.PAYSTACK_INIT);
             post.setEntity(postingString);
             post.addHeader("Content-type", "application/json");
             post.addHeader("Authorization", "Bearer " + secretKey);
-            post.addHeader("User-Agent", "My own REST client");  // Add this line
+//            post.addHeader("User-Agent", "My own REST client");  // Add this line
 
             StringBuilder result = new StringBuilder();
             HttpResponse response = client.execute(post);
@@ -106,13 +125,16 @@ public class PaystackServiceImpl implements PaystackService {
         return initializePaymentResponse;
     }
 
+
+
+
     @Override
-    @Transactional
     public PaymentVerificationResponse paymentVerification(String reference) throws Exception {
         PaymentVerificationResponse paymentVerificationResponse = null;
+        String secretKey = getSecretKey();
 
         try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
-            HttpGet request = new HttpGet(APIConstants.PAYSTACK_VERIFY + "/" + reference);
+            HttpGet request = new HttpGet(APIConstants.PAYSTACK_VERIFY + reference);
             request.addHeader("Content-type", "application/json");
             request.addHeader("Authorization", "Bearer " + secretKey);
 
@@ -126,17 +148,15 @@ public class PaystackServiceImpl implements PaystackService {
                 // Parse the response using ObjectMapper
                 ObjectMapper mapper = new ObjectMapper();
                 paymentVerificationResponse = mapper.readValue(responseBody, PaymentVerificationResponse.class);
-
-                if (paymentVerificationResponse == null || !"false".equals(paymentVerificationResponse.getStatus())) {
-                    String r = EntityUtils.toString(response.getEntity()); //
-                    throw new Exception("An error occurred during Paystack payment verification" + r);
-                } else if ("success".equals(paymentVerificationResponse.getData().getStatus())) {
-                    // Payment verification success
+                if ("success".equals(paymentVerificationResponse.getData().getStatus())) {
                     System.out.println("Payment verification success");
+                }else {
+                    throw new Exception("An error occurred during Paystack payment verification: " + responseBody);
                 }
             } else {
+                String errorMessage = EntityUtils.toString(response.getEntity());
                 throw new IOException("Paystack is unable to verify payment at the moment. HTTP Status Code: " +
-                        response.getStatusLine().getStatusCode());
+                        response.getStatusLine().getStatusCode() + ". Error Message: " + errorMessage);
             }
         } catch (IOException ex) {
             // Log the exception using a logging framework
@@ -144,9 +164,27 @@ public class PaystackServiceImpl implements PaystackService {
             throw new IOException("Error during Paystack payment verification: " + ex.getMessage());
         }
 
-        // Perform any additional processing or save to the database as needed
-        // ...
-
         return paymentVerificationResponse;
+    }
+
+
+    @Override
+    public boolean verifySignature(String secretKey, String rawJson, String xPaystackSignature) {
+        try {
+            String HMAC_SHA512 = "HmacSHA512";
+            secretKey = getSecretKey();
+
+            byte[] byteKey = secretKey.getBytes("UTF-8");
+            SecretKeySpec keySpec = new SecretKeySpec(byteKey, HMAC_SHA512);
+            Mac sha512_HMAC = Mac.getInstance(HMAC_SHA512);
+            sha512_HMAC.init(keySpec);
+            byte[] mac_data = sha512_HMAC.doFinal(rawJson.getBytes("UTF-8"));
+            String calculatedSignature = DatatypeConverter.printHexBinary(mac_data).toLowerCase();
+            return calculatedSignature.equals(xPaystackSignature.toLowerCase());
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeyException e) {
+            // Handle exceptions
+            e.printStackTrace();
+            return false;
+        }
     }
 }

@@ -1,4 +1,5 @@
 package com.FinalProject.NextGenFinalProject.Dto;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -68,5 +69,21 @@ public class PaymentVerificationResponse {
 
         @JsonProperty("updated_on")
         private Date updatedOn = new Date();
+
+        @JsonProperty("customer")
+        private Customer customer;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Customer {
+
+        @JsonProperty("email")
+        private String email;
+
     }
 }

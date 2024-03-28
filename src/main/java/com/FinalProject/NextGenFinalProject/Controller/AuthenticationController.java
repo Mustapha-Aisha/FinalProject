@@ -24,7 +24,8 @@ public class AuthenticationController {
         return authenticationService.createUser(customerRequest);
     }
 
-    @PostMapping("/login")
+
+
     public AppResponse<String> login(@Valid @RequestBody AuthenticationRequest authenticationRequest){
         return authenticationService.login(authenticationRequest);
     }

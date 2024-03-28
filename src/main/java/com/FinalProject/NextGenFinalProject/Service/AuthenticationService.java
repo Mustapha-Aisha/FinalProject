@@ -4,11 +4,9 @@ import com.FinalProject.NextGenFinalProject.Dto.*;
 import com.FinalProject.NextGenFinalProject.Entity.Cart;
 import com.FinalProject.NextGenFinalProject.Entity.Role;
 import com.FinalProject.NextGenFinalProject.Entity.User;
+import com.FinalProject.NextGenFinalProject.Entity.Wallet;
 import com.FinalProject.NextGenFinalProject.Exception.ApiException;
-import com.FinalProject.NextGenFinalProject.Repository.CartRepository;
-import com.FinalProject.NextGenFinalProject.Repository.ProductRepository;
-import com.FinalProject.NextGenFinalProject.Repository.RoleRepository;
-import com.FinalProject.NextGenFinalProject.Repository.UserRepo;
+import com.FinalProject.NextGenFinalProject.Repository.*;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -32,6 +31,7 @@ public class AuthenticationService {
 
     private final JwtService jwtService;
     private final RoleRepository roleRepo;
+    private final WalletRepository walletRepo;
     private final CartRepository cartRepository;
 
 
@@ -72,13 +72,18 @@ public class AuthenticationService {
         user.setLastName(userRequest.getLastName());
         user.setPhoneNumber(userRequest.getPhoneNumber());
         user.setRole(create_User_Role());
-//        Cart cart = new Cart();
-        // Set any necessary properties for the cart
-//        cartRepository.save(cart);
-
-//        user.setCart(cart);
 
         userRepo.save(user);
+
+        Wallet wallet= new Wallet();
+        wallet.setBalance(BigDecimal.ZERO);
+        wallet.setUser(user);
+        walletRepo.save(wallet);
+
+        user.setWallet(wallet);
+
+
+
 
 
         userRepo.save(user);

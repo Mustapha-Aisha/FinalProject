@@ -4,8 +4,12 @@ import com.FinalProject.NextGenFinalProject.Dto.*;
 import com.FinalProject.NextGenFinalProject.Entity.Product;
 import com.FinalProject.NextGenFinalProject.Service.PaystackService;
 import com.FinalProject.NextGenFinalProject.Service.UserService;
+import com.FinalProject.NextGenFinalProject.Service.WalletInterface;
+import com.FinalProject.NextGenFinalProject.Service.WalletServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +23,7 @@ public class ExposedController {
 
     private final UserService userService;
     private final PaystackService paystackService;
+    private final WalletServiceImpl walletService;
 
     @GetMapping("/getProducts")
     public AppResponse<Map<String, Object>> getAllProd(
@@ -48,6 +53,16 @@ public class ExposedController {
 
 
         return paystackService.paymentVerification(reference);
+    }
+
+    @PostMapping("/callback")
+    public AppResponse<String> handlePaystackWebhook(@RequestBody String payload, @RequestHeader("X-Paystack-Signature") String xPaystackSignature) throws JsonProcessingException {
+       return walletService.handleCallback(payload, xPaystackSignature);
+    }
+
+    @PostMapping("/fund")
+    public InitializePaymentResponse fundWallet (@RequestBody InitializePaymentDto paymentDto){
+        return walletService.InitiatingWalletFunding(paymentDto);
     }
 
 }

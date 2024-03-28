@@ -27,7 +27,7 @@ public class OrderService {
     private final ProductRepository prodRepo;
     private final OrderRepository orderRepository;
     private final ReviewRepository reviewRepository;
-    private final UserService userService;
+//    private final UserService userService;
 
     public AppResponse<String> placeOrder(OrderRequest request) {
         List<CartRequest.ItemRequest> itemRequests = request.getItemRequests();
